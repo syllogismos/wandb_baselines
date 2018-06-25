@@ -1,4 +1,5 @@
 import argparse
+import roboschool
 import time
 import os
 import logging
