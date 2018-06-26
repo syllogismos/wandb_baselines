@@ -2,6 +2,8 @@
 Disclaimer: this code is highly based on trpo_mpi at @openai/baselines and @openai/imitation
 '''
 
+import wandb
+wandb.init()
 import argparse
 import os.path as osp
 import logging
@@ -236,4 +238,6 @@ def traj_1_generator(pi, env, horizon, stochastic):
 
 if __name__ == '__main__':
     args = argsparser()
+    wandb.config.update(args)
+    wandb.config.algo = 'gail'
     main(args)
