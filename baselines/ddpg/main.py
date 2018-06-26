@@ -123,6 +123,7 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     wandb.config.update(args)
+    wandb.config.algo = 'ddpg'
     if MPI.COMM_WORLD.Get_rank() == 0:
         logger.configure()
     # Run actual script.
