@@ -11,7 +11,7 @@ from mpi4py import MPI
 from tqdm import tqdm
 
 import numpy as np
-import gym
+import gym, roboschool
 
 from baselines.gail import mlp_policy
 from baselines.common import set_global_seeds, tf_util as U
