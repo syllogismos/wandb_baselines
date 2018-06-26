@@ -1,4 +1,6 @@
 import argparse
+import wandb
+wandb.init()
 import roboschool
 import time
 import os
@@ -16,8 +18,7 @@ from baselines.ddpg.noise import *
 import gym
 import tensorflow as tf
 from mpi4py import MPI
-import wandb
-wandb.init()
+
 
 def run(env_id, seed, noise_type, layer_norm, evaluation, **kwargs):
     # Configure things.
@@ -120,6 +121,7 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
+    wandb.config.update(args)
     if MPI.COMM_WORLD.Get_rank() == 0:
         logger.configure()
     # Run actual script.

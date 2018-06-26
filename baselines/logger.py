@@ -319,8 +319,8 @@ class Logger(object):
         for fmt in self.output_formats:
             if isinstance(fmt, KVWriter):
                 fmt.writekvs(self.name2val)
-        wandb.log(name2val)
-        wandb.log(name2cnt)
+        wandb.log(self.name2val)
+        wandb.log(self.name2cnt)
         self.name2val.clear()
         self.name2cnt.clear()
 
