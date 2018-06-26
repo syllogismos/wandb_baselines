@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import wandb
+wandb.init()
 import numpy as np
 from baselines.common.cmd_util import mujoco_arg_parser
 from baselines import bench, logger
@@ -40,6 +42,8 @@ def train(env_id, num_timesteps, seed):
 
 def main():
     args = mujoco_arg_parser().parse_args()
+    wandb.config.update(args)
+    wandb.config.algo = 'ppo2'
     logger.configure()
     model, env = train(args.env, num_timesteps=args.num_timesteps, seed=args.seed)
 
