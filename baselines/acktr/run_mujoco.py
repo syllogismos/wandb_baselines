@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import wandb
+wandb.init()
 import tensorflow as tf
 from baselines import logger
 from baselines.common.cmd_util import make_mujoco_env, mujoco_arg_parser
@@ -27,6 +29,8 @@ def train(env_id, num_timesteps, seed):
 
 def main():
     args = mujoco_arg_parser().parse_args()
+    wandb.config.update(args)
+    wandb.config.algo = 'acktr'
     logger.configure()
     train(args.env, num_timesteps=args.num_timesteps, seed=args.seed)
 
