@@ -239,5 +239,5 @@ def traj_1_generator(pi, env, horizon, stochastic):
 if __name__ == '__main__':
     args = argsparser()
     wandb.config.update(args)
-    wandb.config.algo = 'gail'
+    # wandb.config.algo = 'gail'
     main(args)
