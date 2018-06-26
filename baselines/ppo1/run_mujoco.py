@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import wandb
+wandb.init()
 from baselines.common.cmd_util import make_mujoco_env, mujoco_arg_parser
 from baselines.common import tf_util as U
 from baselines import logger
@@ -22,6 +24,8 @@ def train(env_id, num_timesteps, seed):
 
 def main():
     args = mujoco_arg_parser().parse_args()
+    wandb.config.update(args)
+    wandb.config.algo = 'ppo1'
     logger.configure()
     train(args.env, num_timesteps=args.num_timesteps, seed=args.seed)
 
