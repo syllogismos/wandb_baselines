@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # noinspection PyUnresolvedReferences
+import wandb
+wandb.init()
 from mpi4py import MPI
 from baselines.common.cmd_util import make_mujoco_env, mujoco_arg_parser
 from baselines import logger
@@ -28,6 +30,8 @@ def train(env_id, num_timesteps, seed):
 
 def main():
     args = mujoco_arg_parser().parse_args()
+    wandb.config.update(args)
+    wandb.config.algo = 'trpo'
     train(args.env, num_timesteps=args.num_timesteps, seed=args.seed)
 
 
