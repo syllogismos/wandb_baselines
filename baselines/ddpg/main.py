@@ -6,6 +6,7 @@ import time
 import os
 import logging
 from baselines import logger, bench
+logger.configure(wandb.run.dir)
 from baselines.common.misc_util import (
     set_global_seeds,
     boolean_flag,
