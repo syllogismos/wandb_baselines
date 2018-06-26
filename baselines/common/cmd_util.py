@@ -3,6 +3,7 @@ Helpers for scripts like run_atari.py.
 """
 
 import os
+import roboschool
 from mpi4py import MPI
 import gym
 from gym.wrappers import FlattenDictWrapper
