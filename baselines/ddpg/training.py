@@ -144,6 +144,7 @@ def train(env, nb_epochs, nb_epoch_cycles, render_eval, reward_scale, render, pa
             stats = agent.get_stats()
             combined_stats = stats.copy()
             combined_stats['rollout/return'] = np.mean(epoch_episode_rewards)
+            combined_stats['EpRewMean'] = combined_stats['rollout/return']
             combined_stats['rollout/return_history'] = np.mean(episode_rewards_history)
             combined_stats['rollout/episode_steps'] = np.mean(epoch_episode_steps)
             combined_stats['rollout/actions_mean'] = np.mean(epoch_actions)
