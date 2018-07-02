@@ -13,7 +13,7 @@ def train(env_id, num_timesteps, seed):
         return mlp_policy.MlpPolicy(name=name, ob_space=ob_space, ac_space=ac_space,
             hid_size=64, num_hid_layers=2)
     env = make_mujoco_env(env_id, seed)
-    pposgd_simple.learn(env, policy_fn,
+    pi = pposgd_simple.learn(env, policy_fn,
             max_timesteps=num_timesteps,
             timesteps_per_actorbatch=2048,
             clip_param=0.2, entcoeff=0.0,
@@ -21,6 +21,9 @@ def train(env_id, num_timesteps, seed):
             gamma=0.99, lam=0.95, schedule='linear',
         )
     env.close()
+    model_path = os.path.join(logger.get_dir(), 'humanoid_policy')
+    U.save_state(model_path)
+    return pi
 
 def main():
     args = mujoco_arg_parser().parse_args()
