@@ -24,6 +24,16 @@ def train(env_id, num_timesteps, seed):
     env.close()
     model_path = os.path.join(wandb.run.dir, 'humanoid_policy')
     U.save_state(model_path)
+    ob = env.reset()
+    total_r = 0
+    while True:
+        action = pi.act(stochastic=False, ob=ob)[0]
+        ob, r, done, _ = env.step(action)
+        total_r += r
+        if done:
+            ob = env.reset()
+    print(total_r)
+    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     return pi
 
 def main():
