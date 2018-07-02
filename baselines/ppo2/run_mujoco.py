@@ -37,6 +37,9 @@ def train(env_id, num_timesteps, seed):
                        lr=3e-4,
                        cliprange=0.2,
                        total_timesteps=num_timesteps)
+    
+    model_path = os.path.join(wandb.run.dir, 'humanoid_policy')
+    U.save_state(model_path)
 
     return model, env
 
@@ -59,6 +62,7 @@ def main():
         obs[:] = env_final.reset()
         while True:
             actions = model.step(obs)[0]
+            print(actions.shape)
             o, r, d, i  = env_final.step(actions)
             obs[:] = o
             # env.render()
