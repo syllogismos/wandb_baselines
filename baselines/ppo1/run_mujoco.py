@@ -33,6 +33,7 @@ def train(env_id, num_timesteps, seed):
         total_r += r
         if done:
             ob = env_final.reset()
+            break
     print(total_r)
     print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     return pi
