@@ -26,7 +26,7 @@ def train(env_id, num_timesteps, seed):
     U.save_state(model_path)
     env_final = gym.make(env_id)
     # env_final = gym.wrappers.Monitor(env_final, wandb.run.dir, video_callable=lambda x: True, force=True)
-    video_recorder = gym.wrappers.monitoring.video_recorder.VideoRecorder(env=env_final, base_path=("/tmp/humanoid.mp4"), enabled=True)
+    video_recorder = gym.wrappers.monitoring.video_recorder.VideoRecorder(env=env_final, base_path=os.path.join(wandb.run.dir, "humanoid"), enabled=True)
 
     ob = env_final.reset()
     total_r = 0
