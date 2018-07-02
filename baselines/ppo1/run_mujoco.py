@@ -24,14 +24,15 @@ def train(env_id, num_timesteps, seed):
     env.close()
     model_path = os.path.join(wandb.run.dir, 'humanoid_policy')
     U.save_state(model_path)
-    ob = env.reset()
+    env_final = make_mujoco_env(env_id, seed)
+    ob = env_final.reset()
     total_r = 0
     while True:
         action = pi.act(stochastic=False, ob=ob)[0]
-        ob, r, done, _ = env.step(action)
+        ob, r, done, _ = env_final.step(action)
         total_r += r
         if done:
-            ob = env.reset()
+            ob = env_final.reset()
     print(total_r)
     print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     return pi
