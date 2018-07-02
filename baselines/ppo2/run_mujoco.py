@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import wandb
 wandb.init()
+import gym, os
 import numpy as np
 from baselines.common.cmd_util import mujoco_arg_parser
 from baselines import bench, logger
@@ -47,14 +48,26 @@ def main():
     logger.configure()
     model, env = train(args.env, num_timesteps=args.num_timesteps, seed=args.seed)
 
-    if args.play:
+    env_final = gym.make(args.env)
+    video_recorder = gym.wrappers.monitoring.video_recorder.VideoRecorder(env=env_final, base_path=os.path.join(wandb.run.dir, 'humanoid'), enabled=True)
+
+    # obs = env_final.reset()
+
+    if True: # if args.play
         logger.log("Running trained model")
         obs = np.zeros((env.num_envs,) + env.observation_space.shape)
-        obs[:] = env.reset()
+        obs[:] = env_final.reset()
         while True:
             actions = model.step(obs)[0]
-            obs[:]  = env.step(actions)[0]
-            env.render()
+            o, r, d, i  = env_final.step(actions)
+            obs[:] = o
+            # env.render()
+            video_recorder.capture_frame()
+            if d:
+                obs[:] = env_final.reset()
+                video_recorder.close()
+                break
+            
 
 
 if __name__ == '__main__':
