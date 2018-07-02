@@ -40,6 +40,7 @@ def train(env_id, num_timesteps, seed):
     
     model_path = os.path.join(wandb.run.dir, 'humanoid_policy')
     # U.save_state(model_path)
+    model.save(model_path)
 
     return model, env
 
