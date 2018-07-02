@@ -2,6 +2,7 @@
 
 import wandb
 wandb.init()
+import os
 from baselines.common.cmd_util import make_mujoco_env, mujoco_arg_parser
 from baselines.common import tf_util as U
 from baselines import logger
