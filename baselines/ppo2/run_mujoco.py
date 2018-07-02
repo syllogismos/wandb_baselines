@@ -64,7 +64,7 @@ def main():
         while True:
             actions = model.step(obs)[0]
             print(actions.shape)
-            o, r, d, i  = env_final.step(actions)
+            o, r, d, i  = env_final.step(actions[0])
             obs[:] = o
             # env.render()
             video_recorder.capture_frame()
