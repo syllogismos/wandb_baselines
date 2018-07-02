@@ -22,7 +22,7 @@ def train(env_id, num_timesteps, seed):
             gamma=0.99, lam=0.95, schedule='linear',
         )
     env.close()
-    model_path = os.path.join(logger.get_dir(), 'humanoid_policy')
+    model_path = os.path.join(wandb.run.dir, 'humanoid_policy')
     U.save_state(model_path)
     return pi
 
