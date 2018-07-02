@@ -30,6 +30,7 @@ def train(env_id, num_timesteps, seed):
     while True:
         action = pi.act(stochastic=False, ob=ob)[0]
         ob, r, done, _ = env_final.step(action)
+        env_final.render()
         total_r += r
         if done:
             ob = env_final.reset()
