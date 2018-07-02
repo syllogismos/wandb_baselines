@@ -2,7 +2,7 @@
 
 import wandb
 wandb.init()
-import os
+import os, gym
 from baselines.common.cmd_util import make_mujoco_env, mujoco_arg_parser
 from baselines.common import tf_util as U
 from baselines import logger
@@ -24,7 +24,9 @@ def train(env_id, num_timesteps, seed):
     env.close()
     model_path = os.path.join(wandb.run.dir, 'humanoid_policy')
     U.save_state(model_path)
-    env_final = make_mujoco_env(env_id, seed)
+    env_final = gym.make(env_id)
+    env_final = gym.wrappers.Monitor(env_final, wandb.run.dir, video_callable=lambda x: True, force=True)
+
     ob = env_final.reset()
     total_r = 0
     while True:
