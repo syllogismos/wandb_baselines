@@ -7,7 +7,7 @@ from baselines.common.cmd_util import make_mujoco_env, mujoco_arg_parser
 from baselines.common import tf_util as U
 from baselines import logger
 
-def train(env_id, num_timesteps, seed):
+def train(env_id, num_timesteps, seed, play=True):
     from baselines.ppo1 import mlp_policy, pposgd_simple
     U.make_session(num_cpu=1).__enter__()
     def policy_fn(name, ob_space, ac_space):
@@ -24,24 +24,25 @@ def train(env_id, num_timesteps, seed):
     env.close()
     model_path = os.path.join(wandb.run.dir, 'humanoid_policy')
     U.save_state(model_path)
-    env_final = gym.make(env_id)
-    # env_final = gym.wrappers.Monitor(env_final, wandb.run.dir, video_callable=lambda x: True, force=True)
-    video_recorder = gym.wrappers.monitoring.video_recorder.VideoRecorder(env=env_final, base_path=os.path.join(wandb.run.dir, "humanoid"), enabled=True)
+    if play:
+        env_final = gym.make(env_id)
+        # env_final = gym.wrappers.Monitor(env_final, wandb.run.dir, video_callable=lambda x: True, force=True)
+        # video_recorder = gym.wrappers.monitoring.video_recorder.VideoRecorder(env=env_final, base_path=os.path.join(wandb.run.dir, "humanoid"), enabled=True)
 
-    ob = env_final.reset()
-    total_r = 0
-    while True:
-        action = pi.act(stochastic=False, ob=ob)[0]
-        ob, r, done, _ = env_final.step(action)
-        # env_final.render()
-        video_recorder.capture_frame()
-        total_r += r
-        if done:
-            ob = env_final.reset()
-            video_recorder.close()
-            break
-    print(total_r)
-    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+        ob = env_final.reset()
+        total_r = 0
+        while True:
+            action = pi.act(stochastic=False, ob=ob)[0]
+            ob, r, done, _ = env_final.step(action)
+            # env_final.render()
+            # video_recorder.capture_frame()
+            total_r += r
+            if done:
+                ob = env_final.reset()
+                # video_recorder.close()
+                break
+        print(total_r)
+        print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     return pi
 
 def main():
