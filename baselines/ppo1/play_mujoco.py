@@ -24,7 +24,7 @@ def main():
             runs += 1
             print(tot_r)
             print("@@@@@@@@@@@@@@@")
-            env.reset()  
+            ob = env.reset()  
         if runs > 3:
             break
 
