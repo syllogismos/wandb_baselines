@@ -18,7 +18,7 @@ def main():
     tot_r = 0
     ob = env.reset()
     runs = 0
-    video = False
+    video = True
     if video:
         video_recorder = gym.wrappers.monitoring.video_recorder(env=env, base_path=os.path.join(run_home, 'humanoid_run_%i'%runs), enabled=True)
 
