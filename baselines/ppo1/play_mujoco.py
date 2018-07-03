@@ -20,7 +20,7 @@ def main():
     runs = 0
     video = True
     if video:
-        video_recorder = gym.wrappers.monitoring.video_recorder(env=env, base_path=os.path.join('/home/ubuntu/wandb_baselines', 'humanoid_run_%i'%runs), enabled=True)
+        video_recorder = gym.wrappers.monitoring.video_recorder.VideoRecorder(env=env, base_path=os.path.join('/home/ubuntu/wandb_baselines', 'humanoid_run_%i'%runs), enabled=True)
 
     while True:
         action = pi.act(stochastic=False, ob=ob)[0]
@@ -34,7 +34,7 @@ def main():
             runs += 1
             if video:
                 video_recorder.close()
-                video_recorder = gym.wrappers.monitoring.video_recorder(env=env, base_path=os.path.join(run_home, 'humanoid_run_%i'%runs), enabled=True)
+                video_recorder = gym.wrappers.monitoring.video_recorder.VideoRecorder(env=env, base_path=os.path.join(run_home, 'humanoid_run_%i'%runs), enabled=True)
                 
             print(tot_r)
             print("@@@@@@@@@@@@@@@")
