@@ -1,9 +1,9 @@
 import gym, os, wandb
-wandb.init()
+# wandb.init()
+from baselines.ppo1.run_mujoco import train
 from baselines.common.cmd_util import make_mujoco_env, mujoco_arg_parser
 from baselines.common import tf_util as U
 from baselines import logger
-from baselines.ppo1.run_mujoco import train
 
 
 def main():
