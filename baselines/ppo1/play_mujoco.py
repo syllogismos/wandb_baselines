@@ -12,7 +12,7 @@ def main():
     pi = train(args.env, num_timesteps=1, seed=args.seed, play=False)
     model_path = '/home/ubuntu/wandb_baselines/wandb/run-20180702_220411-4xtopfue/humanoid_policy'
     U.load_state(model_path)
-    env = mke_mujoco_env('RoboschoolHumanoid-v1', seed=0)
+    env = make_mujoco_env('RoboschoolHumanoid-v1', seed=0)
     tot_r = 0
     ob = env.reset()
     runs = 0
