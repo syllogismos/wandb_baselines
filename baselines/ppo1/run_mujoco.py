@@ -27,7 +27,7 @@ def train(env_id, num_timesteps, seed, play=True):
     if play:
         env_final = gym.make(env_id)
         # env_final = gym.wrappers.Monitor(env_final, wandb.run.dir, video_callable=lambda x: True, force=True)
-        # video_recorder = gym.wrappers.monitoring.video_recorder.VideoRecorder(env=env_final, base_path=os.path.join(wandb.run.dir, "humanoid"), enabled=True)
+        video_recorder = gym.wrappers.monitoring.video_recorder.VideoRecorder(env=env_final, base_path=os.path.join(wandb.run.dir, "humanoid"), enabled=True)
 
         ob = env_final.reset()
         total_r = 0
@@ -35,11 +35,11 @@ def train(env_id, num_timesteps, seed, play=True):
             action = pi.act(stochastic=False, ob=ob)[0]
             ob, r, done, _ = env_final.step(action)
             # env_final.render()
-            # video_recorder.capture_frame()
+            video_recorder.capture_frame()
             total_r += r
             if done:
                 ob = env_final.reset()
-                # video_recorder.close()
+                video_recorder.close()
                 break
         print(total_r)
         print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
