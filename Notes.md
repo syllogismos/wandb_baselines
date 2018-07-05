@@ -1,6 +1,6 @@
 # Introduction
 
-In this blog post I want to give a brief introduction to Reinforcement learning, overview of concepts involved. I cannot obviously cover everything in detail, instead I want to talk about how I learned about it and talk about the resources I found useful to get into it and solve complex environments. I will also discuss briefly various popular RL algorithms.
+In this blog post I want to give a brief introduction to Reinforcement learning, overview of concepts involved. I cannot obviously cover everything in detail, instead I want to talk about how I learned about it and talk about the resources I found useful to get into it and solve complex environments. I also used `wandb` to track how various algorithms performed on the environments. I talk about how `wandb` made my life so much easier and provided me with so much value, with little effort. I will also discuss briefly various popular RL algorithms.
 
 I played with one simple environment called `MountainCar` and one complex environment called `Humanoid` to test various RL algorithms. Below you can see trained agents of both these environments.
 
