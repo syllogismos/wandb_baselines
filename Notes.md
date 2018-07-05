@@ -191,8 +191,6 @@ wandb.log() # log training progress
 
 # Description of the environment
 
-# Actor Critic
-
 # Hyperparameters
 
 # DDPG
@@ -202,8 +200,6 @@ wandb.log() # log training progress
 # PPO1
 
 # PPO2
-
-# Q+
 
 # Results
 
