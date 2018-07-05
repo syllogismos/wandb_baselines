@@ -251,11 +251,13 @@ while True:
         print(total_reward)
         break
 ```
-# Actor Critic
-
 # Description of the environment
 
 # Hyperparameters
+
+# Policy Gradient
+
+# Actor Critic
 
 # DDPG
 
