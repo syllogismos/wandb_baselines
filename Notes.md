@@ -220,7 +220,7 @@ RL libraries from OpenAI, that implements most of the popular RL algorithms, tha
 ## Roboschool
 Alternative to MUJOCO environments, I didn't have a license to play with MUJOCO environemtns, so instead I installed Roboschool to play with complex environments like Humanoid and etc.
 
-I'm running these experiments on AWS Ubuntu instances, so also needed to have a xvfb installed, to record how the agent actually performs.
+I'm running these experiments on AWS Ubuntu instances, so also needed to have  xvfb installed, to record how the episodes of the environment.
 
 All I have to do is run my python script with `xvfb-run` prefixed like below.
 ```
@@ -228,7 +228,7 @@ xvfb-run -s "-screen 0 1400x900x24" python baselines/ppo1/run_mujoco.py --env Ro
 ```
 This attaches a fake monitor that the python script can access and record and capture the environment actually playing.
 
-Because I'm using roboschool, it's slightly different how I capture the frames, unlike with normal gym environments. Usually I just use the `Monitor` wrapper to record the video and progress. For some reason this doesn't work with roboschool environments. Instead I use `VideoRecorder` wrapper to do it manually. Below is a sample code of how I record video of a single episode of an environment.
+Because I'm using roboschool, it's slightly different how I capture the frames, from the normal gym environments. Usually I just use the `Monitor` wrapper to record the video and progress. For some reason this doesn't work with roboschool environments. Instead I use `VideoRecorder` wrapper to do it manually. Below is a sample code of how I record video of a single episode of an environment.
 
 ```
 env = gym.make('RoboschoolHumanoid-v1')
