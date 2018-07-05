@@ -87,14 +87,101 @@ Usually when you are training hard problems it sometimes takes more than a month
 
 Now all I have to do is start several variants in multiple machines and I just log in to the wandb dashboard, and see how various algorithms, hyperparameters are performing. I would even get the print logs to the stdout streamed to the dashboard.
 
-One feature request I would have is the ability to enable email or sms notifications on the various metrics, say loss metrics or system metrics. This would be very helpful to notify especially when training takes days. Sometimes I use spot instances, and when they go offline I should be notified based on system metric logs disappearing and the experiment is still not finished. Or memory or cpu go above or below a certain threshold.
-
 
 
 ## Important Note:
-When initializeing wandb through `wandb.init()` do it in the first lines of your script. Just to make sure it comes above all your multiprocessing logic either through imports or in code. Otherwise your program might crash with scary error logs like below.
+When initializeing wandb through `wandb.init()` do it in the first lines of your script. Just to make sure it comes above all your multiprocessing logic either through imports or in code. Otherwise your program might crash with scary error logs like [this](https://gist.github.com/syllogismos/6a531f06326c6265ac378c290b651421).
+```
+7fc832ad0000-7fc832ad1000 r--p 00025000 ca:01 27501                      /lib/x86_64-linux-gnu/ld-2.23.so
+7fc832ad1000-7fc832ad2000 rw-p 00026000 ca:01 27501                      /lib/x86_64-linux-gnu/ld-2.23.so
+7fc832ad2000-7fc832ad3000 rw-p 00000000 00:00 0
+7ffef91f7000-7ffef9218000 rw-p 00000000 00:00 0                          [stack]
+7ffef939c000-7ffef939f000 r--p 00000000 00:00 0                          [vvar]
+7ffef939f000-7ffef93a1000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+Aborted (core dumped)
+(rllabpp) ubuntu@ip-172-30-0-78:~/wandb_baselines$ wandb: Program ended.
+Exception in thread Thread-3:
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/psutil/_pslinux.py", line 1401, in wrapper
+    return fun(self, *args, **kwargs)
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/psutil/_pslinux.py", line 1583, in create_time
+    values = self._parse_stat_file()
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/psutil/_common.py", line 338, in wrapper
+    return fun(self)
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/psutil/_pslinux.py", line 1440, in _parse_stat_file
+    with open_binary("%s/%s/stat" % (self._procfs_path, self.pid)) as f:
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/psutil/_pslinux.py", line 187, in open_binary
+    return open(fname, "rb", **kwargs)
+FileNotFoundError: [Errno 2] No such file or directory: '/proc/12624/stat'
 
-<script src="https://gist.github.com/syllogismos/6a531f06326c6265ac378c290b651421.js"></script>
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/psutil/__init__.py", line 363, in _init
+    self.create_time()
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/psutil/__init__.py", line 694, in create_time
+    self._create_time = self._proc.create_time()
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/psutil/_pslinux.py", line 1412, in wrapper
+    raise NoSuchProcess(self.pid, self._name)
+psutil._exceptions.NoSuchProcess: psutil.NoSuchProcess process no longer exists (pid=12624)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/threading.py", line 916, in _bootstrap_inner
+    self.run()
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/threading.py", line 864, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/wandb/stats.py", line 94, in _thread_body
+    stats = self.stats()
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/wandb/stats.py", line 153, in stats
+    stats["proc.memory.rssMB"] = self.proc.memory_info().rss / 1048576.0
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/wandb/stats.py", line 80, in proc
+    return psutil.Process(pid=self.run.pid)
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/psutil/__init__.py", line 336, in __init__
+    self._init(pid)
+  File "/home/ubuntu/anaconda2/envs/rllabpp/lib/python3.6/site-packages/psutil/__init__.py", line 376, in _init
+    raise NoSuchProcess(pid, None, msg)
+psutil._exceptions.NoSuchProcess: psutil.NoSuchProcess no process found with pid 12624
+```
+
+## Feature request
+One feature request I would like to have is the ability to enable email or sms notifications on the various metrics, say loss metrics or system metrics. This would be very helpful to notify especially when training takes days. Sometimes I use spot instances, and when they go offline I should be notified based on system metric logs disappearing and the experiment is still not finished. Or memory or cpu go above or below a certain threshold.
+
+## Small bugs
+Most issues I have now are with uploading of files like checkpoints and other files in the experiment directory to the wandb dashboard. For some reason when I checkpoint using tensorflow they are saved in a temporary file and it takes sometime for them to be saved in the actual file. So wandb while traversing the files recognizes the temporary files, but while uploading it fails with an exception and stops uploading the rest of the files and sometimes might not even know the actual checkpoints exist. Maybe right before the uploading logic it should wait for sometime maybe 1-2 seconds for the checkpoints to be saved.
+
+I'm pasting the logs I get when I checkpoint using tensorflow. You can see it recognizes temporary files, but it doesnt event see the actual checkpoint file.
+
+```
+wandb:     loss_pol_surr ▁█
+wandb:         EpLenMean █▁
+wandb:   ev_tdlam_before ▁█
+wandb: Waiting for final file modifications.
+wandb: Syncing files in wandb/run-20180704_085400-ey2kgq4t:
+wandb:   wandb-debug.log
+wandb:   config.yaml
+wandb:   humanoid_policy.data-00000-of-00001.tempstate14432056802831918837
+wandb:   humanoid_policy.index.tempstate5254927434801209082
+wandb:   checkpoint.tmp9bc4dd33814742488021e2bbbaab8f00
+wandb:   humanoid_policy.meta.tmpb3a5730ced754aadb9f46098d3cdde1d
+wandb:   humanoid.mp4
+wandb:   humanoid.meta.json
+wandb:   wandb-metadata.json
+wandb:
+wandb: Verifying uploaded files... verified!
+```
+
+I also came across EmptyFileException for when file exists with no content. When you are dependent on so many libraries any sort of file can be saved and I just wish wandb is more robust in handling these cases.
+
+But overall I get so much value by just adding these 3 lines below.
+
+```
+import wandb; wandb.init()
+wandb.config.update() # log hyperparameters
+wandb.log() # log training progress
+```
 
 
 
@@ -120,21 +207,3 @@ When initializeing wandb through `wandb.init()` do it in the first lines of your
 
 # Results
 
-```
-wandb:     loss_pol_surr ▁█
-wandb:         EpLenMean █▁
-wandb:   ev_tdlam_before ▁█
-wandb: Waiting for final file modifications.
-wandb: Syncing files in wandb/run-20180704_085400-ey2kgq4t:
-wandb:   wandb-debug.log
-wandb:   config.yaml
-wandb:   humanoid_policy.data-00000-of-00001.tempstate14432056802831918837
-wandb:   humanoid_policy.index.tempstate5254927434801209082
-wandb:   checkpoint.tmp9bc4dd33814742488021e2bbbaab8f00
-wandb:   humanoid_policy.meta.tmpb3a5730ced754aadb9f46098d3cdde1d
-wandb:   humanoid.mp4
-wandb:   humanoid.meta.json
-wandb:   wandb-metadata.json
-wandb:
-wandb: Verifying uploaded files... verified!
-```
