@@ -52,21 +52,33 @@ The main differences and challenges when it comes to RL from other ML problems a
 * Agent’s actions affect the subsequent data it receives.
 
 
-I don't want to go too much into the details but I will list some keywords that might be helpful when you want to learn and look into more.
+I don't want to go too much into the details but I will list some keywords and describe them briefly that might be helpful when you want to learn and look into more.
 
 # Keywords
-* Agent
-* Environment
-* Observations, State
-* Actions
-* Reward
-* Value function
-* Policy function
-* Bellman equation
-* Q values
-* Markov Decision Process (MDP)
-* KL Divergence
-* Discount Factor
+## Agent
+An RL agent might include one or more of the below components.
+* Policy: Agents behaviour function. What action to take given the current state
+* Value Function: How good each state is.
+* Model: Agents representation of the environment.
+## Observations, State
+The current state of the environment. In Humanoid environment, the observation might be the position of all the limbs.
+## Actions
+In case of the pong game, actions might be move left, move right or stay still.
+## Reward
+It's basically a sigal of how good of an action you took at a given state.
+## Discount Factor
+It's a proxy to memory of the rewards you get because of the past actions, or how far into the future do you want to consider the rewards.
+## Value function
+Value function basically describes the expected cumulative reward for being in a given state. It takes a state as an input and tells you how much potential reward is possible. Usually it is a neural network.
+## Policy function
+Policy function basically gives you what action to take given the state. Its the behaviour of RL agent. This is what we are trying to figure out. 
+## Q values
+Q values are basically describing at a given state, what actions give you the best expected cumulative reward. One slight but important distinction from value function is that Q = f(s, a)
+## Bellman equation
+This is what we use to compute values of a state or Q values of a state action pair. Its an iterative algorithm. We use this to solve MDPs.
+
+
+These are some basic terms you would come across. There is so much research happenning, but the basis of RL is surprisingly easy to understand with simple iterative algorithms and intuitive concepts. You can solve simple discrete environments if you are comfortable with above concepts. It gets harder when you are trying to solve environemnts with observations and actions in continuous space.
 
 # Value of WANDB
 
@@ -83,7 +95,7 @@ Now all it takes is to add a single line of code to track the progress, and I ge
 And one more thing I get out of the box with wandb is logging of system resources.
 On top of the above tmux terminal, I used to have htop in another window to see if my system resources are being used effectively. And the most frustrating thing is when the program crashes silently because of not having enough memory after training for few hours. I used to realize it long after it crashed wasting compute resources and etc.
 
-Usually when you are training hard problems it sometimes takes more than a month, so tracking your hyperparameters and its book keeping was a huge pain. 
+Usually when you are training hard problems it sometimes takes more than a month testing various algorithms and hyperparameters, so tracking your hyperparameters and its book keeping was a huge pain. 
 
 Now all I have to do is start several variants in multiple machines and I just log in to the wandb dashboard, and see how various algorithms, hyperparameters are performing. I would even get the print logs to the stdout streamed to the dashboard.
 
@@ -147,7 +159,7 @@ psutil._exceptions.NoSuchProcess: psutil.NoSuchProcess no process found with pid
 ```
 
 ## Feature request
-One feature request I would like to have is the ability to enable email or sms notifications on the various metrics, say loss metrics or system metrics. This would be very helpful to notify especially when training takes days. Sometimes I use spot instances, and when they go offline I should be notified based on system metric logs disappearing and the experiment is still not finished. Or memory or cpu go above or below a certain threshold.
+One feature request I would like to have is the ability to enable email or sms notifications on the various metrics, say loss metrics or system metrics. This would be very helpful to notify especially when training takes days. Sometimes I use spot instances, and when they go offline I should be notified based on system metric logs disappearing and the experiment is still not finished. Or memory or cpu go above or below a certain threshold and most importantly your loss metric reaches your sweet spot.
 
 ## Small bugs
 Most issues I have now are with uploading of files like checkpoints and other files in the experiment directory to the wandb dashboard. For some reason when I checkpoint using tensorflow they are saved in a temporary file and it takes sometime for them to be saved in the actual file. So wandb while traversing the files recognizes the temporary files, but while uploading it fails with an exception and stops uploading the rest of the files and sometimes might not even know the actual checkpoints exist. Maybe right before the uploading logic it should wait for sometime maybe 1-2 seconds for the checkpoints to be saved.
@@ -183,10 +195,62 @@ wandb.config.update() # log hyperparameters
 wandb.log() # log training progress
 ```
 
+# How I learnt RL, Resources.
 
+## [Berkeley's, Artificial Intelligence Course]( https://courses.edx.org/courses/BerkeleyX/CS188x_1/1T2013/20021a0a32d14a31b087db8d4bb582fd/)
 
-# How I learnt RL
+This course introduces you to the basics of RL, Markov Decision Processes, Bellman Equation, Policy Iteration algorithms, Value Iteration Algorithms. After this, you can easily solve environments whose observation and action spaces are discrete. It also has a cool assignment where you will play with pac man agent, where you build an agent to solve pacman game.
 
+## [David Silver's Youtube lecture](https://www.youtube.com/watch?v=2pWv7GOvuf0&list=PLzuuYNsE1EZAXYR4FJ75jcJseBmo4KQ9-)
+
+This course actually goes a little bit deeper into  MDP's, Dynamic programming, Model-Free Prediction, Model-Free Control, Value function approximation, actually introduces Neural Networks as Policy and Value functions, Policy gradient algorithm, Actor-Critic algorithm.
+
+I think this is one of the best RL courses out there, not only because the instructor is behind all the cutting edge research happening in this field, but also because of the questions asked by the students. It might not be as polished as Coursera or any other platforms, the participation by the students makes it so much worth it.
+
+## [An Introduction to Reinforcement Learning, Sutton and Barto](http://incompleteideas.net/book/the-book-2nd.html)
+Both the above courses are based on this book. Free book you can download from the above link. Very accessible book. The only place where math gets hard is during the discussion of **Policy Gradient** but it is also the basis for all the cool RL algorithms.
+
+Even with vanilla policy gradient algorithm, it's hard to converge hard continuous environemnts like Humanoid and Atari etc. So instead of implementing them myself I'm using one of the popular RL libraries out there Below I'm describing the experiment setup.
+
+# Experiment Setup.
+## Open AI GYM
+Basically this library makes lots of environments available that you can play with.
+## Baselines, RLLAB
+RL libraries from OpenAI, that implements most of the popular RL algorithms, that are easy to hack and play around with. They made sure it's easy to reproduce results from all the RL papers.
+## Roboschool
+Alternative to MUJOCO environments, I didn't have a license to play with MUJOCO environemtns, so instead I installed Roboschool to play with complex environments like Humanoid and etc.
+
+I'm running these experiments on AWS Ubuntu instances, so also needed to have a xvfb installed, to record how the agent actually performs.
+
+All I have to do is run my python script with `xvfb-run` prefixed like below.
+```
+xvfb-run -s "-screen 0 1400x900x24" python baselines/ppo1/run_mujoco.py --env RoboschoolHumanoid-v1 --num-timesteps 30000000
+```
+This attaches a fake monitor that the python script can access and record and capture the environment actually playing.
+
+Because I'm using roboschool, it's slightly different how I capture the frames, unlike with normal gym environments. Usually I just use the `Monitor` wrapper to record the video and progress. For some reason this doesn't work with roboschool environments. Instead I use `VideoRecorder` wrapper to do it manually. Below is a sample code of how I record video of a single episode of an environment.
+
+```
+env = gym.make('RoboschoolHumanoid-v1')
+total_reward = 0
+ob = env.reset()
+video = True
+if video:
+    video_recorder = gym.wrappers.monitoring.video_recorder.VideoRecorder(env=env, base_path=os.path.join('/home/ubuntu/wandb_baselines', 'humanoid_run2_%i'%seed), enabled=True)
+
+while True:
+    action = pi.act(stochastic=False, ob=ob)[0]
+    ob, r, done, _ = env.step(action)
+    if video:
+        video_recorder.capture_frame()
+    tot_r += r
+    if done:
+        ob = env.reset()  
+        if video:
+            video_recorder.close()
+        print(total_reward)
+        break
+```
 # Actor Critic
 
 # Description of the environment
