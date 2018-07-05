@@ -88,7 +88,7 @@ Before wandb, everytime I run an experiment, I used to create this terminal in t
 
 ![Learning progress before wandb](https://i.imgur.com/aCV4rDs.png)
 
-It used to take me more than 20 commands to create this dashboard by grepping the log file carefully, using `grep` `watch` commands and etc. And I have to recreate this terminal dashboard for each variant seperately. And imagine sshing into machine to see how the training is progressing for problems that take more than a day.
+It used to take me more than 20 commands to create this dashboard by grepping the log file carefully, using `grep` `watch` commands and etc. And I have to recreate this terminal dashboard for each variant seperately. And imagine sshing into machine everytime to see how the training is progressing for problems that take more than a day.
 
 Now all it takes is to add a single line of code to track the progress, and I get nice graphs.
 
