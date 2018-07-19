@@ -352,3 +352,21 @@ Here is how the training progressed of various runs.
 ![Summary Plot](https://i.imgur.com/vPBf3XS.png)
 ![Table Summary](https://i.imgur.com/zmgC0zF.png)
 
+
+Here are the hyperparameters that gave me best results.
+```
+algo=ppo1
+timesteps_per_actorbatch=2048
+optim_epochs=10
+optim_stepsize=3e-4
+optim_batchsize=64,
+gamma=0.99
+lam=0.95
+maxtimesteps=30000000
+```
+
+You can run the experiment using below command. 
+```
+xvfb-run -s "-screen 0 1400x900x24" python baselines/ppo1/run_mujoco.py --env RoboschoolHumanoid-v1 --num-timesteps 30000000
+```
+Make sure you have `gym`, `roboschool`, `tensorflow` and other python dependencies installed. Also install xvfb, so that you can have a fake monitor in a headless machine to record trained agent playing after the last iteration and uploaded to wandb. If you are training on a machine with a monitor, you can just run the python script.
