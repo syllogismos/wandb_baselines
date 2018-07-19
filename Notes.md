@@ -90,15 +90,21 @@ Before wandb, everytime I run an experiment, I used to create this terminal in t
 
 It used to take me more than 20 commands to create this dashboard by grepping the log file carefully, using `grep` `watch` commands and etc. And I have to recreate this terminal dashboard for each variant seperately. And imagine sshing into machine everytime to see how the training is progressing for problems that take more than a day.
 
-Now all it takes is to add a single line of code to track the progress, and I get nice graphs.
+Now all it takes is to add a single line of code to track the progress, and I get nice graphs like below automatically in runs page.
+![Learning progress with wandb](https://i.imgur.com/BEiOw2D.png)
 
 And one more thing I get out of the box with wandb is logging of system resources.
 On top of the above tmux terminal, I used to have htop in another window to see if my system resources are being used effectively. And the most frustrating thing is when the program crashes silently because of not having enough memory after training for few hours. I used to realize it long after it crashed wasting compute resources and etc.
+
+Before wandb checking system resources.
+![Htop system resources](https://i.imgur.com/FjHqajY.png)
 
 Usually when you are training hard problems it sometimes takes more than a month testing various algorithms and hyperparameters, so tracking your hyperparameters and its book keeping was a huge pain. 
 
 Now all I have to do is start several variants in multiple machines and I just log in to the wandb dashboard, and see how various algorithms, hyperparameters are performing. I would even get the print logs to the stdout streamed to the dashboard.
 
+Now I just see the summary of the experiment and how the system resources are being used like below.
+![Wandb system resources and summary](https://i.imgur.com/mpWKekJ.png)
 
 
 ## Important Note:
@@ -252,8 +258,69 @@ while True:
         break
 ```
 # Description of the environment
+The environment I played with mostly is `RoboschoolHumanoid-v1`. I wanted to train a complex environment and `roboschool` is a free unlike `MuJoCo`.
 
-# Hyperparameters
+The observation vector of this environment is 44-Dimensional vector that gives us the positions of various parts of the humanoid. And the action vector is a 17-Dimensional vector that represents various forces and torques to be applied in differrent places of the humanoid. And the reward you get after each step is the forward displacement of the center of mass of the humanoid.
+
+# Intuitive explanation of training.
+So we start with a policy function, that tells us what the next action should be given the current observation. Using this policy function we collect lots of episodes of the environment. Episode is nothing but a collection of observations, actions, and reward at each time step until it ends. Based on the data we collected we optimise the policy function to increase cumulative reward. This is one training step.
+
+One of the biggest challenges of RL is after an iteration we have to collect new set of episodes using the new policy function. And throw away old episodes. This is one of the bottlenecks because it slows down the training process in case of slow environments. This way of only using current set of episodes generated for improving policy function is called `OnPolicy` training or `Online` learning. There are more sophisticated algorithms that make use of older data as well, this sort of training where we use both older episodes and current episodes is called `OffPolicy` or `Offline` training.
+
+The policy function is also called the `Actor` that tells the environment how to behave, and the value function that tells us how good or the potential reward of a given state is also called the `Critic`. Hence the name `Actor-Critic` algorithms.
+
+In the next sections I'll go briefly into various RL algorithms and what they do intuitively. I might be wrong, this is how I understood them.
+
+
+# Hyperparameters and variables you come across in RL papers.
+A sample episode might look like this.
+
+Ob0, A0 -> Ob1, A1, R1 -> Ob2, A2, R2 -> Ob3, A3, R3 -> Ob4, A4, R4
+
+Ob is the observation vector, A is the action vector, and R is the reward.
+Policy function is generally represented using π, and Value function using V
+
+So accordingly
+```
+π(Ob0) = A0
+V(Ob0) = R1 + γR2 + γ*γR3 + ...
+```
+## Gamma, Discount, γ
+We use gamma to discount future rewards, it represents how far into the future we see and attribute the future reward beause of the current action. For example, while walking even though the instant reward might be a slight backward displacement, but because of this action we take we might get more total cumulative reward in the episode. If gamma is zero, we only consider the next reward.
+## Lambda, λ
+This is slightly complex concept, but I will do my best. So for example we are figuring out the value function. At every step
+```
+V(Ob0) = R1 + γR2 + γ*γR3 + ...
+```
+Above equation is the unbiased estimate of the total return, which should be what our value function must return.
+But for this we have to collect all the steps to figure out what the value function is. Instead we can just do below.
+```
+V(Ob0) ~ R1 + γ*V(Ob1)
+V(Ob0) ~ R1 + γR2 + γ*γ*V(Ob2)
+.
+.
+.
+```
+Above equations are biased estimates of the return at Ob0. If our value function is wrong we will have a biased estimate or wrong error that we use to optimise the value function.
+
+We use lambda to reduce the bias and also calculate the return at each step to optimise value function in an online fashion.
+
+If you want to learn more about lambda and advantage estimation. You can look into concepts like Eligibility traces, forward view, TD(λ) and etc. We try to reduce the bias using λ. This is slightly non-intuitive to understand, but I gave you the motivation for introducing lambda here.
+## KL Divergence
+You come across this term in algorithms like TRPO, when we are optimising policy function, we limit how much it can change at every iteration. We only allow the change in entropy of the policy function to be less than this hyperparameter. From my understanding Entropy is a measure of useless information or a measure of policy function's inefficiency. As training progresses, entropy of the policy function decreases. This hyperparameter decides how much the entropy of the policy can decrease in a single iteration.
+
+While you are monitoring your training progress, if the Entropy falls suddenly, and your reward doesn't increase you probably can take that your rl agent won't perform any better in further iterations.
+
+You can find more interpretations of what KL-Divergence is here https://twitter.com/SimonDeDeo/status/993881889143447552
+
+## Learning rate
+Learning rate of your policy and value functions. Intuitively this is like your learning rates you come across in supervised learning.
+
+## Batch size
+Same as what you come across in stochastic gradient descent or any supervised learning algorithms.
+
+## Maximum Time Steps
+Total number of time steps or episodes you want to train for. This along with batchsize decides how many iterations the training will be going on. In roboschool humanoid environment one of the runs I trained for 30000000 time steps.
 
 # Policy Gradient
 
@@ -268,4 +335,20 @@ while True:
 # PPO2
 
 # Results
+I have tried DDPG, TRPO, PPO1, PPO2 algorithms. I got the best results from PPO1.
+PPO1 converged consistently and actually started walking. I couldn't make other algorithms converge and make the humanoid walk. DDPG, PPO2 they just learned how to fall forwards. Below you can see various runs I collected.
+
+![Humanoid 1](https://thumbs.gfycat.com/InformalTiredAlaskajingle-size_restricted.gif)
+![Humanoid 1](https://thumbs.gfycat.com/ImportantAgileArcticduck-size_restricted.gif)
+![Humanoid 1](https://thumbs.gfycat.com/MassiveNervousConch-size_restricted.gif)
+![Humanoid 1](https://thumbs.gfycat.com/WavyAbandonedInexpectatumpleco-size_restricted.gif)
+![Humanoid 1](https://thumbs.gfycat.com/OpenImpassionedDipper-size_restricted.gif)
+![Humanoid 1](https://thumbs.gfycat.com/InbornFixedAntlion-size_restricted.gif)
+
+
+Here is how the training progressed of various runs.
+
+![Summary Reward Plot](https://i.imgur.com/WYNhgzP.png)
+![Summary Plot](https://i.imgur.com/vPBf3XS.png)
+![Table Summary](https://i.imgur.com/zmgC0zF.png)
 
